@@ -234,7 +234,6 @@
       <div class="col-header billy-col">
         <div>
           <div class="col-person-name billy">Billy</div>
-          <div class="col-role">Sales Enablement &mdash; Paraco Gas</div>
         </div>
         <button class="add-entry-btn billy" id="add-billy">+ Add entry</button>
       </div>
@@ -245,7 +244,6 @@
       <div class="col-header ac-col">
         <div>
           <div class="col-person-name ac">A.C.</div>
-          <div class="col-role">Pastry Chef &mdash; Di Sweet Spot</div>
         </div>
         <button class="add-entry-btn ac" id="add-ac">+ Add entry</button>
       </div>
@@ -710,7 +708,7 @@
     var dayData = loadDay(dateStr);
     hvTitle.textContent = formatDisplayDate(dateStr);
 
-    function personSection(person, label, role, cls) {
+    function personSection(person, label, cls) {
       var entries = dayData[person] || [];
       var entriesHtml = entries.length ? entries.map(function(e) {
         var isU = e.unscheduled || !e.start;
@@ -723,13 +721,13 @@
           + '</div></div>';
       }).join('') : '<div class="hv-empty">No entries for this day.</div>';
 
-      return '<div><div class="hv-person-label ' + cls + '">' + label + ' <span class="hv-role">&mdash; ' + role + '</span></div>'
+      return '<div><div class="hv-person-label ' + cls + '">' + label + '</div>'
         + '<div class="hv-entries">' + entriesHtml + '</div></div>';
     }
 
     hvCols.innerHTML =
-      personSection('billy', 'Billy', 'Sales Enablement \u2014 Paraco Gas', 'billy') +
-      personSection('ac', 'A.C.', 'Pastry Chef \u2014 Di Sweet Spot', 'ac');
+      personSection('billy', 'Billy', 'billy') +
+      personSection('ac', 'A.C.', 'ac');
 
     historyViewer.classList.remove('hidden');
   }
@@ -741,7 +739,6 @@
   // ── PRINT ──
   function printPerson(person) {
     var name = person === 'billy' ? 'Billy' : 'A.C.';
-    var role = person === 'billy' ? 'Sales Enablement \u2014 Paraco Gas' : 'Pastry Chef \u2014 Di Sweet Spot';
     var color = person === 'billy' ? '#1B3A6B' : '#7b3fa0';
     var displayDate = formatDisplayDate(currentDate);
     var entries = currentData[person];
@@ -758,7 +755,7 @@
       });
     }
 
-    var printHtml = '<div class="print-page"><div class="print-header"><div><div class="print-header-name" style="color:' + color + ';">' + name + '</div><div class="print-header-sub">' + role + '</div></div><div class="print-header-right"><div class="print-header-mise" style="color:' + color + ';">Mise En Place</div><div class="print-header-date">' + displayDate + '</div></div></div>' + entriesHtml + '<div class="print-footer"><span>Mise En Place &mdash; Daily Planner</span><span>' + displayDate + '</span></div></div>';
+    var printHtml = '<div class="print-page"><div class="print-header"><div><div class="print-header-name" style="color:' + color + ';">' + name + '</div></div><div class="print-header-right"><div class="print-header-mise" style="color:' + color + ';">Mise En Place</div><div class="print-header-date">' + displayDate + '</div></div></div>' + entriesHtml + '<div class="print-footer"><span>Mise En Place &mdash; Daily Planner</span><span>' + displayDate + '</span></div></div>';
 
     document.querySelectorAll('.person-col').forEach(function(c) { c.classList.remove('printing'); });
     document.getElementById('col-' + person).classList.add('printing');
