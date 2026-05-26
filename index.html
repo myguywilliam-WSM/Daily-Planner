@@ -45,6 +45,7 @@
       background: var(--off-white);
       color: var(--text);
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     /* ── HEADER ── */
@@ -78,6 +79,23 @@
       color: rgba(255,255,255,0.6);
       font-weight: 400;
     }
+    .history-toggle-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .history-toggle-btn:hover { background: rgba(255,255,255,0.18); }
 
     /* ── DATE BAR ── */
     .date-bar {
@@ -115,6 +133,32 @@
       color: var(--text-light);
       font-style: italic;
     }
+    .readonly-banner {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold-light);
+      border: 1px solid rgba(201,168,76,0.35);
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      font-size: 13px;
+      color: #7a5a10;
+      font-weight: 500;
+    }
+    .readonly-banner.visible { display: flex; }
+    .go-today-btn {
+      font-family: 'Barlow', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1.5px solid #c9a84c;
+      background: transparent;
+      color: #7a5a10;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .go-today-btn:hover { background: rgba(201,168,76,0.15); }
     .print-btns { display: flex; gap: 8px; margin-left: auto; }
     .print-btn {
       font-family: 'Barlow', sans-serif;
@@ -135,12 +179,16 @@
     .print-btn.ac { background: var(--ac); color: var(--white); }
 
     /* ── LAYOUT ── */
+    .app-body { display: flex; position: relative; }
     .columns {
+      flex: 1;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0;
       min-height: calc(100vh - 120px);
+      transition: margin-right 0.3s ease;
     }
+    .columns.drawer-open { margin-right: 320px; }
 
     .person-col {
       padding: 1.5rem;
@@ -193,6 +241,7 @@
     .add-entry-btn.billy:hover { background: var(--blue-pale); }
     .add-entry-btn.ac { color: var(--ac); border-color: var(--ac); }
     .add-entry-btn.ac:hover { background: var(--ac-light); }
+    .add-entry-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
     /* ── ENTRIES ── */
     .entries-list { display: flex; flex-direction: column; gap: 8px; }
@@ -211,72 +260,15 @@
       position: relative;
     }
     .entry-item:hover { box-shadow: var(--shadow-md); }
-    .entry-item.unscheduled {
-      border-left: 3px solid var(--unscheduled);
-    }
+    .entry-item.unscheduled { border-left: 3px solid var(--unscheduled); }
     .entry-item.scheduled-billy { border-left: 3px solid var(--billy); }
     .entry-item.scheduled-ac { border-left: 3px solid var(--ac); }
+    .entry-item.readonly { grid-template-columns: 90px 1fr; }
 
     .entry-time-col { display: flex; flex-direction: column; gap: 3px; }
-    .time-input {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-muted);
-      border: 1px solid var(--border-med);
-      border-radius: 5px;
-      padding: 4px 6px;
-      width: 84px;
-      background: var(--off-white);
-      outline: none;
-      cursor: pointer;
-    }
-    .time-input:focus { border-color: var(--blue); color: var(--text); }
     .time-label { font-size: 10px; color: var(--text-light); letter-spacing: 0.06em; text-transform: uppercase; }
 
     .entry-main { display: flex; flex-direction: column; gap: 5px; }
-    .entry-title-input {
-      font-family: 'Barlow', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text);
-      border: none;
-      outline: none;
-      background: transparent;
-      width: 100%;
-      padding: 0;
-    }
-    .entry-title-input::placeholder { color: var(--text-light); font-weight: 400; }
-
-    .entry-note-input {
-      font-family: 'Barlow', sans-serif;
-      font-size: 12px;
-      color: var(--text-muted);
-      border: none;
-      outline: none;
-      background: transparent;
-      width: 100%;
-      padding: 0;
-      resize: none;
-      line-height: 1.4;
-      min-height: 0;
-      overflow: hidden;
-    }
-    .entry-note-input::placeholder { color: var(--text-light); }
-
-    .entry-type-select {
-      font-family: 'Barlow', sans-serif;
-      font-size: 11px;
-      border: 1px solid var(--border-med);
-      border-radius: 4px;
-      padding: 3px 6px;
-      background: var(--off-white);
-      color: var(--text-muted);
-      outline: none;
-      cursor: pointer;
-      width: 84px;
-    }
-
     .entry-actions { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
     .del-btn {
       background: none;
@@ -295,7 +287,6 @@
     .entry-checkbox { width: 14px; height: 14px; accent-color: var(--navy); cursor: pointer; }
     .entry-checkbox-label { font-size: 11px; color: var(--text-light); }
 
-    /* unscheduled badge */
     .unsched-badge {
       display: inline-block;
       font-size: 10px;
@@ -318,7 +309,242 @@
       font-style: italic;
     }
 
-    /* ── MODAL / OVERLAY ── */
+    /* ── HISTORY DRAWER ── */
+    .history-drawer {
+      position: fixed;
+      top: 58px;
+      right: -320px;
+      width: 320px;
+      height: calc(100vh - 58px);
+      background: var(--white);
+      border-left: 1px solid var(--border);
+      box-shadow: -4px 0 24px rgba(27,58,107,0.1);
+      z-index: 90;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s ease;
+      overflow: hidden;
+    }
+    .history-drawer.open { right: 0; }
+
+    .drawer-header {
+      background: var(--navy);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .drawer-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 0.04em;
+    }
+    .drawer-close {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 2px 4px;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .drawer-close:hover { color: var(--white); }
+
+    .drawer-search {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .drawer-search input {
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+      width: 100%;
+      border: 1.5px solid var(--border-med);
+      border-radius: var(--radius-sm);
+      padding: 7px 10px;
+      background: var(--off-white);
+      color: var(--text);
+      outline: none;
+    }
+    .drawer-search input:focus { border-color: var(--blue); }
+    .drawer-search input::placeholder { color: var(--text-light); }
+
+    .drawer-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+    .drawer-day-item {
+      padding: 10px 1.25rem;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.12s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .drawer-day-item:hover { background: var(--off-white); }
+    .drawer-day-item.active { background: var(--blue-pale); }
+    .drawer-day-left {}
+    .drawer-day-date {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+    .drawer-day-dow {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 1px;
+    }
+    .drawer-day-counts {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .drawer-count-pill {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .drawer-count-pill.billy { background: var(--blue-pale); color: var(--navy); }
+    .drawer-count-pill.ac { background: var(--ac-light); color: var(--ac); }
+    .drawer-empty {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-light);
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    /* ── HISTORY VIEWER MODAL ── */
+    .history-viewer {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,25,50,0.5);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      backdrop-filter: blur(3px);
+    }
+    .history-viewer.hidden { display: none; }
+    .hv-modal {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 780px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      animation: modalIn 0.22s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.97) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .hv-header {
+      background: var(--navy);
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .hv-header-left {}
+    .hv-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 3px;
+    }
+    .hv-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .hv-close {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: var(--radius-sm);
+      color: rgba(255,255,255,0.8);
+      font-size: 18px;
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .hv-close:hover { background: rgba(255,255,255,0.2); }
+
+    .hv-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+    .hv-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .hv-person-section {}
+    .hv-person-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid;
+    }
+    .hv-person-label.billy { color: var(--billy); border-color: var(--billy); }
+    .hv-person-label.ac { color: var(--ac); border-color: var(--ac); }
+    .hv-role { font-size: 11px; color: var(--text-light); font-weight: 400; }
+    .hv-entries { display: flex; flex-direction: column; gap: 6px; }
+    .hv-entry {
+      background: var(--off-white);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      border-left: 3px solid;
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 8px;
+    }
+    .hv-entry.billy { border-left-color: var(--billy); }
+    .hv-entry.ac { border-left-color: var(--ac); }
+    .hv-entry.unsched { border-left-color: var(--unscheduled); }
+    .hv-time {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding-top: 2px;
+    }
+    .hv-time.unsched-t {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--unscheduled);
+    }
+    .hv-entry-type { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-light); }
+    .hv-entry-title { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.3; }
+    .hv-entry-title.done { text-decoration: line-through; color: var(--text-light); }
+    .hv-entry-note { font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-top: 2px; }
+    .hv-empty { font-size: 13px; color: var(--text-light); font-style: italic; padding: 0.5rem 0; }
+
+    /* ── ENTRY MODAL ── */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -339,10 +565,6 @@
       width: 100%;
       max-width: 460px;
       animation: modalIn 0.2s ease;
-    }
-    @keyframes modalIn {
-      from { opacity: 0; transform: scale(0.96) translateY(8px); }
-      to { opacity: 1; transform: scale(1) translateY(0); }
     }
     .modal-title {
       font-family: 'Barlow Condensed', sans-serif;
@@ -396,129 +618,52 @@
     .modal-btn.primary-ac { background: var(--ac); color: var(--white); border-color: var(--ac); }
     .modal-btn.primary-ac:hover { opacity: 0.9; }
 
-    /* ── PRINT STYLES ── */
+    /* ── PRINT ── */
     @media print {
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       body { background: white; margin: 0; }
       .app-header, .date-bar, .print-btns, .add-entry-btn, .del-btn,
-      .entry-actions, .modal-overlay, .no-print { display: none !important; }
-      .columns { display: block; }
+      .entry-actions, .modal-overlay, .history-drawer, .history-viewer, .no-print { display: none !important; }
+      .app-body, .columns { display: block !important; margin: 0 !important; }
       .person-col { display: none; padding: 0; border: none; }
       .person-col.printing { display: block; }
-
-      .print-page {
-        width: 100%;
-        padding: 0;
-        font-family: 'Barlow', sans-serif;
-      }
-
+      .print-page { width: 100%; padding: 0; font-family: 'Barlow', sans-serif; }
       .print-header {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        border-bottom: 3px solid var(--navy);
-        padding-bottom: 10px;
-        margin-bottom: 18px;
+        display: flex; align-items: flex-end; justify-content: space-between;
+        border-bottom: 3px solid var(--navy); padding-bottom: 10px; margin-bottom: 18px;
       }
-      .print-header-name {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-size: 32px;
-        font-weight: 700;
-        line-height: 1;
-      }
-      .print-header-sub {
-        font-size: 13px;
-        color: #777;
-        font-style: italic;
-        margin-top: 3px;
-      }
-      .print-header-right {
-        text-align: right;
-        font-family: 'Barlow Condensed', sans-serif;
-      }
-      .print-header-mise {
-        font-size: 18px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-      .print-header-date {
-        font-size: 14px;
-        color: #555;
-        margin-top: 2px;
-      }
-
+      .print-header-name { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 700; line-height: 1; }
+      .print-header-sub { font-size: 13px; color: #777; font-style: italic; margin-top: 3px; }
+      .print-header-right { text-align: right; font-family: 'Barlow Condensed', sans-serif; }
+      .print-header-mise { font-size: 18px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+      .print-header-date { font-size: 14px; color: #555; margin-top: 2px; }
       .print-entry {
-        display: grid;
-        grid-template-columns: 80px 1fr;
-        gap: 10px;
-        align-items: start;
-        padding: 8px 0;
-        border-bottom: 1px solid #e8ecf0;
-        page-break-inside: avoid;
+        display: grid; grid-template-columns: 80px 1fr; gap: 10px;
+        align-items: start; padding: 8px 0; border-bottom: 1px solid #e8ecf0; page-break-inside: avoid;
       }
-      .print-time {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-size: 13px;
-        font-weight: 600;
-        color: #444;
-        padding-top: 2px;
-      }
-      .print-time.unsched {
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--unscheduled);
-        background: var(--unscheduled-light);
-        padding: 2px 6px;
-        border-radius: 3px;
-      }
-      .print-entry-body {}
-      .print-entry-title {
-        font-size: 14px;
-        font-weight: 500;
-        color: #1a1e2e;
-        line-height: 1.3;
-      }
-      .print-entry-type {
-        font-size: 10px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: #999;
-        margin-bottom: 2px;
-      }
-      .print-entry-note {
-        font-size: 12px;
-        color: #666;
-        line-height: 1.45;
-        margin-top: 3px;
-      }
+      .print-time { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; color: #444; padding-top: 2px; }
+      .print-time.unsched { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--unscheduled); background: var(--unscheduled-light); padding: 2px 6px; border-radius: 3px; }
+      .print-entry-type { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #999; margin-bottom: 2px; }
+      .print-entry-title { font-size: 14px; font-weight: 500; color: #1a1e2e; line-height: 1.3; }
+      .print-entry-note { font-size: 12px; color: #666; line-height: 1.45; margin-top: 3px; }
       .print-check { display: inline-block; width: 13px; height: 13px; border: 1.5px solid #ccc; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
-      .print-footer {
-        margin-top: 24px;
-        padding-top: 10px;
-        border-top: 1px solid #ddd;
-        font-size: 11px;
-        color: #aaa;
-        display: flex;
-        justify-content: space-between;
-      }
+      .print-footer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 11px; color: #aaa; display: flex; justify-content: space-between; }
     }
 
     @media (max-width: 700px) {
       .columns { grid-template-columns: 1fr; }
+      .columns.drawer-open { margin-right: 0; }
       .person-col { border-right: none; border-bottom: 1px solid var(--border); }
       .date-bar { padding: 0.75rem 1rem; }
       .print-btns { flex-wrap: wrap; }
       .app-header { padding: 0 1rem; }
+      .history-drawer { width: 100%; right: -100%; }
+      .hv-cols { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- Header -->
 <header class="app-header">
   <div class="header-left">
     <div class="app-logo">Mise En <span>Place</span></div>
@@ -527,62 +672,72 @@
   </div>
   <div class="header-right">
     <div class="header-date-display" id="header-date-display"></div>
+    <button class="history-toggle-btn" onclick="toggleDrawer()">&#128337; History</button>
   </div>
 </header>
 
-<!-- Date Bar -->
 <div class="date-bar no-print">
   <label>Planning for:</label>
   <input type="date" id="plan-date" />
   <span class="date-bar-note">6:30 AM — Midnight</span>
+  <div class="readonly-banner" id="readonly-banner">
+    <span>&#128274; Viewing a past day (read-only)</span>
+    <button class="go-today-btn" onclick="goToToday()">Go to today</button>
+  </div>
   <div class="print-btns">
-    <button class="print-btn billy" onclick="printPerson('billy')">
-      &#x2399; Export Billy's PDF
-    </button>
-    <button class="print-btn ac" onclick="printPerson('ac')">
-      &#x2399; Export A.C.'s PDF
-    </button>
+    <button class="print-btn billy" onclick="printPerson('billy')">&#x2399; Export Billy's PDF</button>
+    <button class="print-btn ac" onclick="printPerson('ac')">&#x2399; Export A.C.'s PDF</button>
   </div>
 </div>
 
-<!-- Columns -->
-<div class="columns">
+<div class="app-body">
+  <div class="columns" id="columns">
 
-  <!-- Billy -->
-  <div class="person-col" id="col-billy">
-    <div class="col-header billy-col">
-      <div>
-        <div class="col-person-name billy">Billy</div>
-        <div class="col-role">Sales Enablement &mdash; Paraco Gas</div>
+    <div class="person-col" id="col-billy">
+      <div class="col-header billy-col">
+        <div>
+          <div class="col-person-name billy">Billy</div>
+          <div class="col-role">Sales Enablement &mdash; Paraco Gas</div>
+        </div>
+        <button class="add-entry-btn billy" id="add-billy" onclick="openModal('billy')">+ Add entry</button>
       </div>
-      <button class="add-entry-btn billy" onclick="openModal('billy')">+ Add entry</button>
+      <div class="entries-list" id="entries-billy">
+        <div class="empty-state" id="empty-billy">No entries yet. Click &ldquo;Add entry&rdquo; to get started.</div>
+      </div>
     </div>
-    <div class="entries-list" id="entries-billy">
-      <div class="empty-state" id="empty-billy">No entries yet. Click &ldquo;Add entry&rdquo; to get started.</div>
+
+    <div class="person-col" id="col-ac">
+      <div class="col-header ac-col">
+        <div>
+          <div class="col-person-name ac">A.C.</div>
+          <div class="col-role">Pastry Chef &mdash; Di Sweet Spot</div>
+        </div>
+        <button class="add-entry-btn ac" id="add-ac" onclick="openModal('ac')">+ Add entry</button>
+      </div>
+      <div class="entries-list" id="entries-ac">
+        <div class="empty-state" id="empty-ac">No entries yet. Click &ldquo;Add entry&rdquo; to get started.</div>
+      </div>
     </div>
+
   </div>
 
-  <!-- A.C. -->
-  <div class="person-col" id="col-ac">
-    <div class="col-header ac-col">
-      <div>
-        <div class="col-person-name ac">A.C.</div>
-        <div class="col-role">Pastry Chef &mdash; Di Sweet Spot</div>
-      </div>
-      <button class="add-entry-btn ac" onclick="openModal('ac')">+ Add entry</button>
+  <!-- History Drawer -->
+  <div class="history-drawer" id="history-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">&#128337; Past Days</div>
+      <button class="drawer-close" onclick="toggleDrawer()">&times;</button>
     </div>
-    <div class="entries-list" id="entries-ac">
-      <div class="empty-state" id="empty-ac">No entries yet. Click &ldquo;Add entry&rdquo; to get started.</div>
+    <div class="drawer-search">
+      <input type="date" id="drawer-date-picker" placeholder="Jump to date..." onchange="jumpToDate(this.value)" />
     </div>
+    <div class="drawer-list" id="drawer-list"></div>
   </div>
-
 </div>
 
-<!-- Add Entry Modal -->
+<!-- Entry Modal -->
 <div class="modal-overlay hidden" id="modal-overlay">
   <div class="modal">
     <div class="modal-title" id="modal-title">Add Entry</div>
-
     <div class="modal-field">
       <label class="modal-label">Entry type</label>
       <select class="modal-select" id="m-type" onchange="handleTypeChange()">
@@ -594,35 +749,30 @@
         <option value="meal">Meal / Break</option>
       </select>
     </div>
-
     <div class="modal-field">
       <label class="modal-label">Title</label>
       <input type="text" class="modal-input" id="m-title" placeholder="What is this?" />
     </div>
-
     <div class="modal-field">
       <label class="modal-label">Notes (optional)</label>
       <textarea class="modal-textarea" id="m-notes" placeholder="Any details, prep notes, or context..."></textarea>
     </div>
-
     <div class="modal-row">
       <div class="modal-field">
         <label class="modal-label">Start time</label>
-        <input type="time" class="modal-input" id="m-start" min="06:30" max="23:59" />
+        <input type="time" class="modal-input" id="m-start" />
       </div>
       <div class="modal-field">
         <label class="modal-label">End time (optional)</label>
         <input type="time" class="modal-input" id="m-end" />
       </div>
     </div>
-
     <div class="modal-field" id="m-unscheduled-wrap" style="display:none">
-      <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:var(--text-muted);">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-muted);">
         <input type="checkbox" id="m-unscheduled" style="width:15px;height:15px;accent-color:var(--unscheduled);cursor:pointer;" />
         Mark as unscheduled (no specific time)
       </label>
     </div>
-
     <div class="modal-actions">
       <button class="modal-btn" onclick="closeModal()">Cancel</button>
       <button class="modal-btn" id="modal-save-btn" onclick="saveEntry()">Add to Day</button>
@@ -630,21 +780,45 @@
   </div>
 </div>
 
-<!-- Print target (hidden, built on demand) -->
+<!-- History Viewer -->
+<div class="history-viewer hidden" id="history-viewer">
+  <div class="hv-modal">
+    <div class="hv-header">
+      <div class="hv-header-left">
+        <div class="hv-eyebrow">Past Day &mdash; Read Only</div>
+        <div class="hv-title" id="hv-title"></div>
+      </div>
+      <button class="hv-close" onclick="closeViewer()">&times;</button>
+    </div>
+    <div class="hv-body">
+      <div class="hv-cols" id="hv-cols"></div>
+    </div>
+  </div>
+</div>
+
 <div id="print-target" style="display:none"></div>
 
 <script>
+  // ── CONSTANTS ──
+  const STORAGE_PREFIX = 'mep_day_';
+  const TODAY_KEY = 'mep_today';
+  const typeLabels = { appointment:'Appointment', task:'Task', reminder:'Reminder', personal:'Personal', work:'Work Block', meal:'Meal / Break' };
+
   // ── STATE ──
   let currentPerson = null;
   let editingId = null;
-  const data = { billy: [], ac: [] };
+  let currentDate = '';
+  let isReadOnly = false;
+  let currentData = { billy: [], ac: [] };
 
-  // ── DATE ──
-  const dateInput = document.getElementById('plan-date');
-  const today = new Date();
+  // ── DATE UTILS ──
   const pad = n => String(n).padStart(2,'0');
-  const todayStr = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
-  dateInput.value = todayStr;
+  const dateInput = document.getElementById('plan-date');
+
+  function getTodayStr() {
+    const t = new Date();
+    return `${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}`;
+  }
 
   function formatDisplayDate(val) {
     if (!val) return '';
@@ -655,29 +829,196 @@
     return `${days[dt.getDay()]}, ${names[m-1]} ${parseInt(d)}, ${y}`;
   }
 
-  function updateHeaderDate() {
-    document.getElementById('header-date-display').textContent = formatDisplayDate(dateInput.value);
+  function formatShortDate(val) {
+    if (!val) return '';
+    const [y,m,d] = val.split('-');
+    const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const dt = new Date(y, m-1, d);
+    return { dow: days[dt.getDay()], date: `${names[m-1]} ${parseInt(d)}, ${y}` };
   }
-  dateInput.addEventListener('change', updateHeaderDate);
-  updateHeaderDate();
+
+  function fmt(t) {
+    if (!t) return '';
+    let [h, m] = t.split(':').map(Number);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return `${h}:${String(m).padStart(2,'0')} ${ampm}`;
+  }
+
+  function fmtRange(start, end) {
+    if (!start) return '';
+    return end ? `${fmt(start)} \u2013 ${fmt(end)}` : fmt(start);
+  }
+
+  function escHtml(s) {
+    if (!s) return '';
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── STORAGE: per-day ──
+  function dayKey(dateStr) { return STORAGE_PREFIX + dateStr; }
+
+  function saveDay(dateStr, dayData) {
+    try {
+      if (dayData.billy.length || dayData.ac.length) {
+        localStorage.setItem(dayKey(dateStr), JSON.stringify(dayData));
+      } else {
+        localStorage.removeItem(dayKey(dateStr));
+      }
+    } catch(e) {}
+  }
+
+  function loadDay(dateStr) {
+    try {
+      const s = localStorage.getItem(dayKey(dateStr));
+      return s ? JSON.parse(s) : { billy: [], ac: [] };
+    } catch(e) { return { billy: [], ac: [] }; }
+  }
+
+  function getAllDayKeys() {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(STORAGE_PREFIX)) {
+        keys.push(k.replace(STORAGE_PREFIX, ''));
+      }
+    }
+    return keys.sort().reverse(); // newest first
+  }
+
+  // ── LOAD / SWITCH DATE ──
+  function loadDate(dateStr, readOnly) {
+    // Save current day first if editing
+    if (!isReadOnly && currentDate) {
+      saveDay(currentDate, currentData);
+    }
+
+    currentDate = dateStr;
+    isReadOnly = readOnly;
+    currentData = loadDay(dateStr);
+
+    dateInput.value = dateStr;
+    document.getElementById('header-date-display').textContent = formatDisplayDate(dateStr);
+
+    const banner = document.getElementById('readonly-banner');
+    banner.classList.toggle('visible', readOnly);
+    document.getElementById('add-billy').disabled = readOnly;
+    document.getElementById('add-ac').disabled = readOnly;
+
+    renderEntries('billy');
+    renderEntries('ac');
+
+    // Save today key for reopening
+    try { localStorage.setItem(TODAY_KEY, dateStr); } catch(e) {}
+  }
+
+  function goToToday() {
+    loadDate(getTodayStr(), false);
+    renderDrawer();
+  }
+
+  // ── DATE PICKER ──
+  dateInput.addEventListener('change', () => {
+    const val = dateInput.value;
+    if (!val) return;
+    const todayStr = getTodayStr();
+    loadDate(val, val < todayStr);
+    renderDrawer();
+  });
+
+  // ── SORT ──
+  function sortEntries(person) {
+    currentData[person].sort((a, b) => {
+      const aU = a.unscheduled || !a.start;
+      const bU = b.unscheduled || !b.start;
+      if (aU && !bU) return 1;
+      if (!aU && bU) return -1;
+      if (aU && bU) return 0;
+      return (a.start || '').localeCompare(b.start || '');
+    });
+  }
+
+  // ── RENDER ENTRIES ──
+  function renderEntries(person) {
+    const list = document.getElementById('entries-' + person);
+    const empty = document.getElementById('empty-' + person);
+    const entries = currentData[person];
+
+    if (!entries.length) {
+      list.innerHTML = '';
+      list.appendChild(empty);
+      empty.style.display = 'block';
+      empty.textContent = isReadOnly ? 'No entries for this day.' : 'No entries yet. Click \u201CAdd entry\u201D to get started.';
+      return;
+    }
+    empty.style.display = 'none';
+    list.innerHTML = '';
+
+    entries.forEach(entry => {
+      const isUnsched = entry.unscheduled || !entry.start;
+      const div = document.createElement('div');
+      div.className = `entry-item ${isUnsched ? 'unscheduled' : 'scheduled-' + person}${isReadOnly ? ' readonly' : ''}`;
+
+      const timeHtml = isUnsched
+        ? `<span class="unsched-badge">Unscheduled</span>`
+        : `<div class="time-label">Time</div>
+           <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);line-height:1.3;">${fmtRange(entry.start, entry.end)}</div>`;
+
+      const actionsHtml = isReadOnly ? '' : `
+        <div class="entry-actions">
+          <button class="del-btn" onclick="deleteEntry('${person}','${entry.id}')" title="Remove">&times;</button>
+          <button style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:12px;padding:2px 4px;" onclick="openModal('${person}','${entry.id}')" title="Edit">&#9998;</button>
+        </div>`;
+
+      const checkHtml = (!isReadOnly && (entry.type === 'task' || entry.type === 'reminder')) ? `
+        <div class="entry-checkbox-wrap">
+          <input type="checkbox" class="entry-checkbox" ${entry.done ? 'checked' : ''} onchange="toggleDone('${person}','${entry.id}',this.checked)" />
+          <span class="entry-checkbox-label">Mark complete</span>
+        </div>` : (isReadOnly && entry.done ? `<div style="font-size:11px;color:var(--text-light);margin-top:3px;">&#10003; Completed</div>` : '');
+
+      div.innerHTML = `
+        <div class="entry-time-col">${timeHtml}</div>
+        <div class="entry-main">
+          <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-light);">${typeLabels[entry.type] || entry.type}</div>
+          <div style="font-size:14px;font-weight:500;color:${entry.done ? 'var(--text-light)' : 'var(--text)'};text-decoration:${entry.done ? 'line-through' : 'none'};">${escHtml(entry.title)}</div>
+          ${entry.notes ? `<div style="font-size:12px;color:var(--text-muted);line-height:1.4;margin-top:2px;">${escHtml(entry.notes)}</div>` : ''}
+          ${checkHtml}
+        </div>
+        ${actionsHtml}
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function deleteEntry(person, id) {
+    currentData[person] = currentData[person].filter(e => e.id !== id);
+    renderEntries(person);
+    saveDay(currentDate, currentData);
+  }
+
+  function toggleDone(person, id, val) {
+    const e = currentData[person].find(e => e.id === id);
+    if (e) { e.done = val; renderEntries(person); saveDay(currentDate, currentData); }
+  }
 
   // ── MODAL ──
   function openModal(person, id) {
+    if (isReadOnly) return;
     currentPerson = person;
     editingId = id || null;
-    const overlay = document.getElementById('modal-overlay');
     const title = document.getElementById('modal-title');
     const saveBtn = document.getElementById('modal-save-btn');
 
     title.className = 'modal-title ' + person;
     title.textContent = editingId
-      ? (person === 'billy' ? "Edit — Billy's Entry" : "Edit — A.C.'s Entry")
+      ? (person === 'billy' ? "Edit \u2014 Billy's Entry" : "Edit \u2014 A.C.'s Entry")
       : (person === 'billy' ? "Add to Billy's Day" : "Add to A.C.'s Day");
     saveBtn.className = 'modal-btn primary-' + person;
     saveBtn.textContent = editingId ? 'Save Changes' : 'Add to Day';
 
     if (editingId) {
-      const entry = data[person].find(e => e.id === editingId);
+      const entry = currentData[person].find(e => e.id === editingId);
       if (entry) {
         document.getElementById('m-type').value = entry.type;
         document.getElementById('m-title').value = entry.title;
@@ -697,7 +1038,7 @@
       handleTypeChange();
     }
 
-    overlay.classList.remove('hidden');
+    document.getElementById('modal-overlay').classList.remove('hidden');
     setTimeout(() => document.getElementById('m-title').focus(), 50);
   }
 
@@ -709,8 +1050,7 @@
 
   function handleTypeChange() {
     const type = document.getElementById('m-type').value;
-    const wrap = document.getElementById('m-unscheduled-wrap');
-    wrap.style.display = (type === 'task' || type === 'reminder') ? 'block' : 'none';
+    document.getElementById('m-unscheduled-wrap').style.display = (type === 'task' || type === 'reminder') ? 'block' : 'none';
   }
 
   document.getElementById('modal-overlay').addEventListener('click', e => {
@@ -718,14 +1058,12 @@
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeModal();
-    if (e.key === 'Enter' && !document.getElementById('modal-overlay').classList.contains('hidden')) {
-      if (document.activeElement.tagName !== 'TEXTAREA') saveEntry();
-    }
+    if (e.key === 'Escape') { closeModal(); closeViewer(); }
   });
 
-  // ── SAVE ──
+  // ── SAVE ENTRY ──
   function saveEntry() {
+    if (!currentPerson) return;
     const title = document.getElementById('m-title').value.trim();
     if (!title) { document.getElementById('m-title').style.borderColor = '#e74c3c'; return; }
     document.getElementById('m-title').style.borderColor = '';
@@ -743,146 +1081,141 @@
     };
 
     if (editingId) {
-      const idx = data[currentPerson].findIndex(e => e.id === editingId);
-      if (idx > -1) {
-        entry.done = data[currentPerson][idx].done;
-        data[currentPerson][idx] = entry;
-      }
+      const idx = currentData[currentPerson].findIndex(e => e.id === editingId);
+      if (idx > -1) { entry.done = currentData[currentPerson][idx].done; currentData[currentPerson][idx] = entry; }
     } else {
-      data[currentPerson].push(entry);
+      currentData[currentPerson].push(entry);
     }
 
     sortEntries(currentPerson);
     renderEntries(currentPerson);
     closeModal();
-    save();
+    saveDay(currentDate, currentData);
+    renderDrawer();
   }
 
-  // ── SORT ──
-  function sortEntries(person) {
-    data[person].sort((a, b) => {
-      const aUnsched = a.unscheduled || !a.start;
-      const bUnsched = b.unscheduled || !b.start;
-      if (aUnsched && !bUnsched) return 1;
-      if (!aUnsched && bUnsched) return -1;
-      if (aUnsched && bUnsched) return 0;
-      return (a.start || '').localeCompare(b.start || '');
-    });
+  // ── DRAWER ──
+  let drawerOpen = false;
+
+  function toggleDrawer() {
+    drawerOpen = !drawerOpen;
+    document.getElementById('history-drawer').classList.toggle('open', drawerOpen);
+    document.getElementById('columns').classList.toggle('drawer-open', drawerOpen);
+    if (drawerOpen) renderDrawer();
   }
 
-  // ── FORMAT TIME ──
-  function fmt(t) {
-    if (!t) return '';
-    let [h, m] = t.split(':').map(Number);
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    h = h % 12 || 12;
-    return `${h}:${String(m).padStart(2,'0')} ${ampm}`;
-  }
+  function renderDrawer() {
+    const list = document.getElementById('drawer-list');
+    const todayStr = getTodayStr();
+    const keys = getAllDayKeys();
 
-  function fmtRange(start, end) {
-    if (!start) return '';
-    return end ? `${fmt(start)} – ${fmt(end)}` : fmt(start);
-  }
+    // Always show today even if no entries
+    const allKeys = keys.includes(todayStr) ? keys : [todayStr, ...keys];
 
-  // ── TYPE LABELS ──
-  const typeLabels = {
-    appointment: 'Appointment', task: 'Task', reminder: 'Reminder',
-    personal: 'Personal', work: 'Work Block', meal: 'Meal / Break'
-  };
-
-  // ── RENDER ──
-  function renderEntries(person) {
-    const list = document.getElementById('entries-' + person);
-    const empty = document.getElementById('empty-' + person);
-    const entries = data[person];
-
-    if (!entries.length) {
-      list.innerHTML = '';
-      list.appendChild(empty);
-      empty.style.display = 'block';
+    if (!allKeys.length) {
+      list.innerHTML = '<div class="drawer-empty">No past days yet.</div>';
       return;
     }
-    empty.style.display = 'none';
+
     list.innerHTML = '';
+    allKeys.forEach(dateStr => {
+      const dayData = dateStr === currentDate ? currentData : loadDay(dateStr);
+      const billyCount = (dayData.billy || []).length;
+      const acCount = (dayData.ac || []).length;
+      const { dow, date } = formatShortDate(dateStr);
+      const isToday = dateStr === todayStr;
+      const isCurrent = dateStr === currentDate;
 
-    entries.forEach(entry => {
-      const isUnsched = entry.unscheduled || !entry.start;
-      const div = document.createElement('div');
-      div.className = `entry-item ${isUnsched ? 'unscheduled' : 'scheduled-' + person}`;
-      div.dataset.id = entry.id;
-
-      const timeHtml = isUnsched
-        ? `<span class="unsched-badge">Unscheduled</span>`
-        : `<div class="time-label">Time</div>
-           <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);line-height:1.3;">${fmtRange(entry.start, entry.end)}</div>`;
-
-      div.innerHTML = `
-        <div class="entry-time-col">${timeHtml}</div>
-        <div class="entry-main">
-          <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-light);">${typeLabels[entry.type] || entry.type}</div>
-          <div style="font-size:14px;font-weight:500;color:${entry.done ? 'var(--text-light)' : 'var(--text)'};text-decoration:${entry.done ? 'line-through' : 'none'};">${escHtml(entry.title)}</div>
-          ${entry.notes ? `<div style="font-size:12px;color:var(--text-muted);line-height:1.4;margin-top:2px;">${escHtml(entry.notes)}</div>` : ''}
-          ${entry.type === 'task' || entry.type === 'reminder' ? `
-            <div class="entry-checkbox-wrap">
-              <input type="checkbox" class="entry-checkbox" ${entry.done ? 'checked' : ''} onchange="toggleDone('${person}','${entry.id}',this.checked)" />
-              <span class="entry-checkbox-label">Mark complete</span>
-            </div>` : ''}
+      const item = document.createElement('div');
+      item.className = 'drawer-day-item' + (isCurrent ? ' active' : '');
+      item.innerHTML = `
+        <div class="drawer-day-left">
+          <div class="drawer-day-date">${date}${isToday ? ' <span style="font-size:10px;background:var(--blue);color:white;padding:1px 6px;border-radius:10px;vertical-align:middle;">Today</span>' : ''}</div>
+          <div class="drawer-day-dow">${dow}</div>
         </div>
-        <div class="entry-actions">
-          <button class="del-btn" onclick="deleteEntry('${person}','${entry.id}')" title="Remove">&times;</button>
-          <button style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:12px;padding:2px 4px;" onclick="openModal('${person}','${entry.id}')" title="Edit">&#9998;</button>
+        <div class="drawer-day-counts">
+          ${billyCount ? `<span class="drawer-count-pill billy">B: ${billyCount}</span>` : ''}
+          ${acCount ? `<span class="drawer-count-pill ac">AC: ${acCount}</span>` : ''}
+          ${!billyCount && !acCount ? '<span style="font-size:11px;color:var(--text-light);">empty</span>' : ''}
         </div>
       `;
-      list.appendChild(div);
+
+      item.onclick = () => {
+        if (dateStr === currentDate && !isReadOnly) { toggleDrawer(); return; }
+        if (dateStr === todayStr) {
+          loadDate(todayStr, false);
+          toggleDrawer();
+        } else {
+          openViewer(dateStr);
+        }
+      };
+      list.appendChild(item);
     });
   }
 
-  function escHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  function jumpToDate(val) {
+    if (!val) return;
+    const todayStr = getTodayStr();
+    if (val === todayStr) {
+      loadDate(todayStr, false);
+      toggleDrawer();
+    } else if (val < todayStr) {
+      openViewer(val);
+    } else {
+      loadDate(val, false);
+      toggleDrawer();
+    }
+    document.getElementById('drawer-date-picker').value = '';
   }
 
-  function deleteEntry(person, id) {
-    data[person] = data[person].filter(e => e.id !== id);
-    renderEntries(person);
-    save();
+  // ── HISTORY VIEWER ──
+  function openViewer(dateStr) {
+    const dayData = loadDay(dateStr);
+    document.getElementById('hv-title').textContent = formatDisplayDate(dateStr);
+
+    function personHtml(person, label, role, cls) {
+      const entries = (dayData[person] || []);
+      let entriesHtml = entries.length ? entries.map(e => {
+        const isU = e.unscheduled || !e.start;
+        return `<div class="hv-entry ${isU ? 'unsched' : cls}">
+          <div class="hv-time ${isU ? 'unsched-t' : ''}">${isU ? 'Unscheduled' : fmtRange(e.start, e.end)}</div>
+          <div>
+            <div class="hv-entry-type">${typeLabels[e.type] || e.type}</div>
+            <div class="hv-entry-title${e.done ? ' done' : ''}">${escHtml(e.title)}${e.done ? ' <span style="font-size:10px;color:var(--text-light);">\u2713</span>' : ''}</div>
+            ${e.notes ? `<div class="hv-entry-note">${escHtml(e.notes)}</div>` : ''}
+          </div>
+        </div>`;
+      }).join('') : '<div class="hv-empty">No entries for this day.</div>';
+
+      return `<div class="hv-person-section">
+        <div class="hv-person-label ${cls}">${label} <span class="hv-role">&mdash; ${role}</span></div>
+        <div class="hv-entries">${entriesHtml}</div>
+      </div>`;
+    }
+
+    document.getElementById('hv-cols').innerHTML =
+      personHtml('billy', 'Billy', 'Sales Enablement \u2014 Paraco Gas', 'billy') +
+      personHtml('ac', 'A.C.', 'Pastry Chef \u2014 Di Sweet Spot', 'ac');
+
+    document.getElementById('history-viewer').classList.remove('hidden');
   }
 
-  function toggleDone(person, id, val) {
-    const e = data[person].find(e => e.id === id);
-    if (e) { e.done = val; renderEntries(person); save(); }
+  function closeViewer() {
+    document.getElementById('history-viewer').classList.add('hidden');
   }
 
-  // ── LOCAL STORAGE ──
-  function save() {
-    try { localStorage.setItem('mep_data', JSON.stringify({ date: dateInput.value, data })); } catch(e) {}
-  }
-
-  function loadSaved() {
-    try {
-      const s = localStorage.getItem('mep_data');
-      if (s) {
-        const parsed = JSON.parse(s);
-        if (parsed.date) { dateInput.value = parsed.date; updateHeaderDate(); }
-        if (parsed.data) {
-          if (parsed.data.billy) data.billy = parsed.data.billy;
-          if (parsed.data.ac) data.ac = parsed.data.ac;
-        }
-        renderEntries('billy');
-        renderEntries('ac');
-      }
-    } catch(e) {}
-  }
+  document.getElementById('history-viewer').addEventListener('click', e => {
+    if (e.target === document.getElementById('history-viewer')) closeViewer();
+  });
 
   // ── PRINT ──
   function printPerson(person) {
     const name = person === 'billy' ? 'Billy' : 'A.C.';
-    const role = person === 'billy' ? 'Sales Enablement — Paraco Gas' : 'Pastry Chef — Di Sweet Spot';
+    const role = person === 'billy' ? 'Sales Enablement \u2014 Paraco Gas' : 'Pastry Chef \u2014 Di Sweet Spot';
     const color = person === 'billy' ? '#1B3A6B' : '#7b3fa0';
-    const dateVal = dateInput.value;
-    const displayDate = formatDisplayDate(dateVal);
-    const entries = data[person];
+    const displayDate = formatDisplayDate(currentDate);
+    const entries = currentData[person];
 
-    // Build print HTML
     let entriesHtml = '';
     if (!entries.length) {
       entriesHtml = '<div style="color:#aaa;font-style:italic;font-size:13px;padding:16px 0;">No entries for this day.</div>';
@@ -892,8 +1225,7 @@
         const timeDisplay = isUnsched
           ? `<span class="print-time unsched">Unscheduled</span>`
           : `<span class="print-time">${fmtRange(e.start, e.end)}</span>`;
-        const checkBox = (e.type === 'task' || e.type === 'reminder')
-          ? `<span class="print-check"></span>` : '';
+        const checkBox = (e.type === 'task' || e.type === 'reminder') ? `<span class="print-check"></span>` : '';
         entriesHtml += `
           <div class="print-entry">
             <div>${timeDisplay}</div>
@@ -923,31 +1255,41 @@
           <span>Mise En Place &mdash; Daily Planner</span>
           <span>${displayDate}</span>
         </div>
-      </div>
-    `;
+      </div>`;
 
-    // Show only this person's column, inject print content
     document.querySelectorAll('.person-col').forEach(c => c.classList.remove('printing'));
     document.getElementById('col-' + person).classList.add('printing');
-
     const target = document.getElementById('print-target');
     target.innerHTML = printHtml;
     target.style.display = 'block';
-
-    // Temporarily hide screen content, show print target
     document.querySelector('.columns').style.display = 'none';
-
     window.print();
-
-    // Restore
     document.querySelector('.columns').style.display = '';
     target.style.display = 'none';
     target.innerHTML = '';
   }
 
   // ── INIT ──
-  loadSaved();
-  dateInput.addEventListener('change', save);
+  function init() {
+    const todayStr = getTodayStr();
+    // Migrate any old single-key storage
+    try {
+      const old = localStorage.getItem('mep_data');
+      if (old) {
+        const parsed = JSON.parse(old);
+        if (parsed.data && (parsed.data.billy.length || parsed.data.ac.length)) {
+          const migrateDate = parsed.date || todayStr;
+          saveDay(migrateDate, parsed.data);
+        }
+        localStorage.removeItem('mep_data');
+      }
+    } catch(e) {}
+
+    loadDate(todayStr, false);
+    renderDrawer();
+  }
+
+  init();
 </script>
 
 </body>
