@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mise En Place — Daily Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1B3A6B;
+      --navy-deep: #122848;
+      --blue: #5BA4CF;
+      --blue-light: #d6eaf8;
+      --blue-pale: #eef6fc;
+      --gold: #C9A84C;
+      --gold-light: #fdf6e3;
+      --white: #ffffff;
+      --off-white: #f6f7f9;
+      --surface: #ffffff;
+      --text: #1a1e2e;
+      --text-muted: #5a6a82;
+      --text-light: #96a3b5;
+      --border: rgba(27,58,107,0.1);
+      --border-med: rgba(27,58,107,0.2);
+      --shadow-sm: 0 1px 4px rgba(27,58,107,0.07);
+      --shadow-md: 0 4px 20px rgba(27,58,107,0.1);
+      --shadow-lg: 0 12px 48px rgba(27,58,107,0.13);
+      --radius: 12px;
+      --radius-sm: 7px;
+      --billy: #1B3A6B;
+      --ac: #7b3fa0;
+      --ac-light: #f3eafa;
+      --unscheduled: #e07a1a;
+      --unscheduled-light: #fdf0e3;
+    }
+
+    html { font-size: 16px; }
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--off-white);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .app-header {
+      background: var(--navy);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 58px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .app-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 0.04em;
+    }
+    .app-logo span { color: var(--blue); }
+    .header-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.18); }
+    .header-tagline { font-size: 12px; color: rgba(255,255,255,0.45); letter-spacing: 0.04em; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .header-date-display {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      font-weight: 400;
+    }
+
+    /* ── DATE BAR ── */
+    .date-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .date-bar label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      white-space: nowrap;
+    }
+    .date-bar input[type="date"] {
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      border: 1.5px solid var(--border-med);
+      border-radius: var(--radius-sm);
+      padding: 7px 12px;
+      background: var(--off-white);
+      cursor: pointer;
+      outline: none;
+    }
+    .date-bar input[type="date"]:focus { border-color: var(--blue); }
+    .date-bar-note {
+      font-size: 13px;
+      color: var(--text-light);
+      font-style: italic;
+    }
+    .print-btns { display: flex; gap: 8px; margin-left: auto; }
+    .print-btn {
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      border: none;
+      letter-spacing: 0.02em;
+      transition: opacity 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .print-btn:hover { opacity: 0.88; }
+    .print-btn.billy { background: var(--navy); color: var(--white); }
+    .print-btn.ac { background: var(--ac); color: var(--white); }
+
+    /* ── LAYOUT ── */
+    .columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      min-height: calc(100vh - 120px);
+    }
+
+    .person-col {
+      padding: 1.5rem;
+      border-right: 1px solid var(--border);
+    }
+    .person-col:last-child { border-right: none; }
+
+    .col-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .col-header.billy-col { border-bottom-color: var(--billy); }
+    .col-header.ac-col { border-bottom-color: var(--ac); }
+
+    .col-person-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .col-person-name.billy { color: var(--billy); }
+    .col-person-name.ac { color: var(--ac); }
+    .col-role {
+      font-size: 12px;
+      color: var(--text-light);
+      font-weight: 400;
+      margin-top: 1px;
+    }
+
+    .add-entry-btn {
+      font-family: 'Barlow', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      border: 1.5px solid;
+      background: transparent;
+      letter-spacing: 0.03em;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .add-entry-btn.billy { color: var(--billy); border-color: var(--billy); }
+    .add-entry-btn.billy:hover { background: var(--blue-pale); }
+    .add-entry-btn.ac { color: var(--ac); border-color: var(--ac); }
+    .add-entry-btn.ac:hover { background: var(--ac-light); }
+
+    /* ── ENTRIES ── */
+    .entries-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .entry-item {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      display: grid;
+      grid-template-columns: 90px 1fr auto;
+      gap: 10px;
+      align-items: start;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.15s;
+      position: relative;
+    }
+    .entry-item:hover { box-shadow: var(--shadow-md); }
+    .entry-item.unscheduled {
+      border-left: 3px solid var(--unscheduled);
+    }
+    .entry-item.scheduled-billy { border-left: 3px solid var(--billy); }
+    .entry-item.scheduled-ac { border-left: 3px solid var(--ac); }
+
+    .entry-time-col { display: flex; flex-direction: column; gap: 3px; }
+    .time-input {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: 1px solid var(--border-med);
+      border-radius: 5px;
+      padding: 4px 6px;
+      width: 84px;
+      background: var(--off-white);
+      outline: none;
+      cursor: pointer;
+    }
+    .time-input:focus { border-color: var(--blue); color: var(--text); }
+    .time-label { font-size: 10px; color: var(--text-light); letter-spacing: 0.06em; text-transform: uppercase; }
+
+    .entry-main { display: flex; flex-direction: column; gap: 5px; }
+    .entry-title-input {
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      border: none;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      padding: 0;
+    }
+    .entry-title-input::placeholder { color: var(--text-light); font-weight: 400; }
+
+    .entry-note-input {
+      font-family: 'Barlow', sans-serif;
+      font-size: 12px;
+      color: var(--text-muted);
+      border: none;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      padding: 0;
+      resize: none;
+      line-height: 1.4;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .entry-note-input::placeholder { color: var(--text-light); }
+
+    .entry-type-select {
+      font-family: 'Barlow', sans-serif;
+      font-size: 11px;
+      border: 1px solid var(--border-med);
+      border-radius: 4px;
+      padding: 3px 6px;
+      background: var(--off-white);
+      color: var(--text-muted);
+      outline: none;
+      cursor: pointer;
+      width: 84px;
+    }
+
+    .entry-actions { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+    .del-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-light);
+      font-size: 16px;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+    .del-btn:hover { color: #c0392b; }
+
+    .entry-checkbox-wrap { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+    .entry-checkbox { width: 14px; height: 14px; accent-color: var(--navy); cursor: pointer; }
+    .entry-checkbox-label { font-size: 11px; color: var(--text-light); }
+
+    /* unscheduled badge */
+    .unsched-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--unscheduled);
+      background: var(--unscheduled-light);
+      border-radius: 3px;
+      padding: 1px 6px;
+      margin-top: 3px;
+      align-self: flex-start;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--text-light);
+      font-size: 14px;
+      font-style: italic;
+    }
+
+    /* ── MODAL / OVERLAY ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,25,50,0.45);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      backdrop-filter: blur(2px);
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 2rem;
+      width: 100%;
+      max-width: 460px;
+      animation: modalIn 0.2s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+    .modal-title.billy { color: var(--billy); }
+    .modal-title.ac { color: var(--ac); }
+    .modal-field { margin-bottom: 1rem; }
+    .modal-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-light);
+      margin-bottom: 5px;
+    }
+    .modal-input, .modal-select, .modal-textarea {
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      border: 1.5px solid var(--border-med);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      width: 100%;
+      background: var(--off-white);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .modal-input:focus, .modal-select:focus, .modal-textarea:focus { border-color: var(--blue); }
+    .modal-textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+    .modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 1.5rem; justify-content: flex-end; }
+    .modal-btn {
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 9px 20px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      border: 1.5px solid var(--border-med);
+      background: var(--white);
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+    .modal-btn:hover { background: var(--off-white); }
+    .modal-btn.primary-billy { background: var(--billy); color: var(--white); border-color: var(--billy); }
+    .modal-btn.primary-billy:hover { opacity: 0.9; }
+    .modal-btn.primary-ac { background: var(--ac); color: var(--white); border-color: var(--ac); }
+    .modal-btn.primary-ac:hover { opacity: 0.9; }
+
+    /* ── PRINT STYLES ── */
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      body { background: white; margin: 0; }
+      .app-header, .date-bar, .print-btns, .add-entry-btn, .del-btn,
+      .entry-actions, .modal-overlay, .no-print { display: none !important; }
+      .columns { display: block; }
+      .person-col { display: none; padding: 0; border: none; }
+      .person-col.printing { display: block; }
+
+      .print-page {
+        width: 100%;
+        padding: 0;
+        font-family: 'Barlow', sans-serif;
+      }
+
+      .print-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        border-bottom: 3px solid var(--navy);
+        padding-bottom: 10px;
+        margin-bottom: 18px;
+      }
+      .print-header-name {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .print-header-sub {
+        font-size: 13px;
+        color: #777;
+        font-style: italic;
+        margin-top: 3px;
+      }
+      .print-header-right {
+        text-align: right;
+        font-family: 'Barlow Condensed', sans-serif;
+      }
+      .print-header-mise {
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .print-header-date {
+        font-size: 14px;
+        color: #555;
+        margin-top: 2px;
+      }
+
+      .print-entry {
+        display: grid;
+        grid-template-columns: 80px 1fr;
+        gap: 10px;
+        align-items: start;
+        padding: 8px 0;
+        border-bottom: 1px solid #e8ecf0;
+        page-break-inside: avoid;
+      }
+      .print-time {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        color: #444;
+        padding-top: 2px;
+      }
+      .print-time.unsched {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--unscheduled);
+        background: var(--unscheduled-light);
+        padding: 2px 6px;
+        border-radius: 3px;
+      }
+      .print-entry-body {}
+      .print-entry-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1a1e2e;
+        line-height: 1.3;
+      }
+      .print-entry-type {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #999;
+        margin-bottom: 2px;
+      }
+      .print-entry-note {
+        font-size: 12px;
+        color: #666;
+        line-height: 1.45;
+        margin-top: 3px;
+      }
+      .print-check { display: inline-block; width: 13px; height: 13px; border: 1.5px solid #ccc; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+      .print-footer {
+        margin-top: 24px;
+        padding-top: 10px;
+        border-top: 1px solid #ddd;
+        font-size: 11px;
+        color: #aaa;
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .columns { grid-template-columns: 1fr; }
+      .person-col { border-right: none; border-bottom: 1px solid var(--border); }
+      .date-bar { padding: 0.75rem 1rem; }
+      .print-btns { flex-wrap: wrap; }
+      .app-header { padding: 0 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="app-header">
+  <div class="header-left">
+    <div class="app-logo">Mise En <span>Place</span></div>
+    <div class="header-sep"></div>
+    <div class="header-tagline">Daily Planner</div>
+  </div>
+  <div class="header-right">
+    <div class="header-date-display" id="header-date-display"></div>
+  </div>
+</header>
+
+<!-- Date Bar -->
+<div class="date-bar no-print">
+  <label>Planning for:</label>
+  <input type="date" id="plan-date" />
+  <span class="date-bar-note">6:30 AM — Midnight</span>
+  <div class="print-btns">
+    <button class="print-btn billy" onclick="printPerson('billy')">
+      &#x2399; Export Billy's PDF
+    </button>
+    <button class="print-btn ac" onclick="printPerson('ac')">
+      &#x2399; Export A.C.'s PDF
+    </button>
+  </div>
+</div>
+
+<!-- Columns -->
+<div class="columns">
+
+  <!-- Billy -->
+  <div class="person-col" id="col-billy">
+    <div class="col-header billy-col">
+      <div>
+        <div class="col-person-name billy">Billy</div>
+        <div class="col-role">Sales Enablement &mdash; Paraco Gas</div>
+      </div>
+      <button class="add-entry-btn billy" onclick="openModal('billy')">+ Add entry</button>
+    </div>
+    <div class="entries-list" id="entries-billy">
+      <div class="empty-state" id="empty-billy">No entries yet. Click &ldquo;Add entry&rdquo; to get started.</div>
+    </div>
+  </div>
+
+  <!-- A.C. -->
+  <div class="person-col" id="col-ac">
+    <div class="col-header ac-col">
+      <div>
+        <div class="col-person-name ac">A.C.</div>
+        <div class="col-role">Pastry Chef &mdash; Di Sweet Spot</div>
+      </div>
+      <button class="add-entry-btn ac" onclick="openModal('ac')">+ Add entry</button>
+    </div>
+    <div class="entries-list" id="entries-ac">
+      <div class="empty-state" id="empty-ac">No entries yet. Click &ldquo;Add entry&rdquo; to get started.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Add Entry Modal -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Add Entry</div>
+
+    <div class="modal-field">
+      <label class="modal-label">Entry type</label>
+      <select class="modal-select" id="m-type" onchange="handleTypeChange()">
+        <option value="appointment">Appointment / Meeting</option>
+        <option value="task">Task</option>
+        <option value="reminder">Reminder</option>
+        <option value="personal">Personal</option>
+        <option value="work">Work Block</option>
+        <option value="meal">Meal / Break</option>
+      </select>
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label">Title</label>
+      <input type="text" class="modal-input" id="m-title" placeholder="What is this?" />
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label">Notes (optional)</label>
+      <textarea class="modal-textarea" id="m-notes" placeholder="Any details, prep notes, or context..."></textarea>
+    </div>
+
+    <div class="modal-row">
+      <div class="modal-field">
+        <label class="modal-label">Start time</label>
+        <input type="time" class="modal-input" id="m-start" min="06:30" max="23:59" />
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">End time (optional)</label>
+        <input type="time" class="modal-input" id="m-end" />
+      </div>
+    </div>
+
+    <div class="modal-field" id="m-unscheduled-wrap" style="display:none">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:var(--text-muted);">
+        <input type="checkbox" id="m-unscheduled" style="width:15px;height:15px;accent-color:var(--unscheduled);cursor:pointer;" />
+        Mark as unscheduled (no specific time)
+      </label>
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn" id="modal-save-btn" onclick="saveEntry()">Add to Day</button>
+    </div>
+  </div>
+</div>
+
+<!-- Print target (hidden, built on demand) -->
+<div id="print-target" style="display:none"></div>
+
+<script>
+  // ── STATE ──
+  let currentPerson = null;
+  let editingId = null;
+  const data = { billy: [], ac: [] };
+
+  // ── DATE ──
+  const dateInput = document.getElementById('plan-date');
+  const today = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const todayStr = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+  dateInput.value = todayStr;
+
+  function formatDisplayDate(val) {
+    if (!val) return '';
+    const [y,m,d] = val.split('-');
+    const names = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const dt = new Date(y, m-1, d);
+    return `${days[dt.getDay()]}, ${names[m-1]} ${parseInt(d)}, ${y}`;
+  }
+
+  function updateHeaderDate() {
+    document.getElementById('header-date-display').textContent = formatDisplayDate(dateInput.value);
+  }
+  dateInput.addEventListener('change', updateHeaderDate);
+  updateHeaderDate();
+
+  // ── MODAL ──
+  function openModal(person, id) {
+    currentPerson = person;
+    editingId = id || null;
+    const overlay = document.getElementById('modal-overlay');
+    const title = document.getElementById('modal-title');
+    const saveBtn = document.getElementById('modal-save-btn');
+
+    title.className = 'modal-title ' + person;
+    title.textContent = editingId
+      ? (person === 'billy' ? "Edit — Billy's Entry" : "Edit — A.C.'s Entry")
+      : (person === 'billy' ? "Add to Billy's Day" : "Add to A.C.'s Day");
+    saveBtn.className = 'modal-btn primary-' + person;
+    saveBtn.textContent = editingId ? 'Save Changes' : 'Add to Day';
+
+    if (editingId) {
+      const entry = data[person].find(e => e.id === editingId);
+      if (entry) {
+        document.getElementById('m-type').value = entry.type;
+        document.getElementById('m-title').value = entry.title;
+        document.getElementById('m-notes').value = entry.notes || '';
+        document.getElementById('m-start').value = entry.start || '';
+        document.getElementById('m-end').value = entry.end || '';
+        document.getElementById('m-unscheduled').checked = entry.unscheduled || false;
+        handleTypeChange();
+      }
+    } else {
+      document.getElementById('m-type').value = 'appointment';
+      document.getElementById('m-title').value = '';
+      document.getElementById('m-notes').value = '';
+      document.getElementById('m-start').value = '';
+      document.getElementById('m-end').value = '';
+      document.getElementById('m-unscheduled').checked = false;
+      handleTypeChange();
+    }
+
+    overlay.classList.remove('hidden');
+    setTimeout(() => document.getElementById('m-title').focus(), 50);
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.add('hidden');
+    currentPerson = null;
+    editingId = null;
+  }
+
+  function handleTypeChange() {
+    const type = document.getElementById('m-type').value;
+    const wrap = document.getElementById('m-unscheduled-wrap');
+    wrap.style.display = (type === 'task' || type === 'reminder') ? 'block' : 'none';
+  }
+
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Enter' && !document.getElementById('modal-overlay').classList.contains('hidden')) {
+      if (document.activeElement.tagName !== 'TEXTAREA') saveEntry();
+    }
+  });
+
+  // ── SAVE ──
+  function saveEntry() {
+    const title = document.getElementById('m-title').value.trim();
+    if (!title) { document.getElementById('m-title').style.borderColor = '#e74c3c'; return; }
+    document.getElementById('m-title').style.borderColor = '';
+
+    const entry = {
+      id: editingId || Date.now().toString(),
+      person: currentPerson,
+      type: document.getElementById('m-type').value,
+      title,
+      notes: document.getElementById('m-notes').value.trim(),
+      start: document.getElementById('m-start').value,
+      end: document.getElementById('m-end').value,
+      unscheduled: document.getElementById('m-unscheduled').checked,
+      done: false,
+    };
+
+    if (editingId) {
+      const idx = data[currentPerson].findIndex(e => e.id === editingId);
+      if (idx > -1) {
+        entry.done = data[currentPerson][idx].done;
+        data[currentPerson][idx] = entry;
+      }
+    } else {
+      data[currentPerson].push(entry);
+    }
+
+    sortEntries(currentPerson);
+    renderEntries(currentPerson);
+    closeModal();
+    save();
+  }
+
+  // ── SORT ──
+  function sortEntries(person) {
+    data[person].sort((a, b) => {
+      const aUnsched = a.unscheduled || !a.start;
+      const bUnsched = b.unscheduled || !b.start;
+      if (aUnsched && !bUnsched) return 1;
+      if (!aUnsched && bUnsched) return -1;
+      if (aUnsched && bUnsched) return 0;
+      return (a.start || '').localeCompare(b.start || '');
+    });
+  }
+
+  // ── FORMAT TIME ──
+  function fmt(t) {
+    if (!t) return '';
+    let [h, m] = t.split(':').map(Number);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return `${h}:${String(m).padStart(2,'0')} ${ampm}`;
+  }
+
+  function fmtRange(start, end) {
+    if (!start) return '';
+    return end ? `${fmt(start)} – ${fmt(end)}` : fmt(start);
+  }
+
+  // ── TYPE LABELS ──
+  const typeLabels = {
+    appointment: 'Appointment', task: 'Task', reminder: 'Reminder',
+    personal: 'Personal', work: 'Work Block', meal: 'Meal / Break'
+  };
+
+  // ── RENDER ──
+  function renderEntries(person) {
+    const list = document.getElementById('entries-' + person);
+    const empty = document.getElementById('empty-' + person);
+    const entries = data[person];
+
+    if (!entries.length) {
+      list.innerHTML = '';
+      list.appendChild(empty);
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    list.innerHTML = '';
+
+    entries.forEach(entry => {
+      const isUnsched = entry.unscheduled || !entry.start;
+      const div = document.createElement('div');
+      div.className = `entry-item ${isUnsched ? 'unscheduled' : 'scheduled-' + person}`;
+      div.dataset.id = entry.id;
+
+      const timeHtml = isUnsched
+        ? `<span class="unsched-badge">Unscheduled</span>`
+        : `<div class="time-label">Time</div>
+           <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);line-height:1.3;">${fmtRange(entry.start, entry.end)}</div>`;
+
+      div.innerHTML = `
+        <div class="entry-time-col">${timeHtml}</div>
+        <div class="entry-main">
+          <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-light);">${typeLabels[entry.type] || entry.type}</div>
+          <div style="font-size:14px;font-weight:500;color:${entry.done ? 'var(--text-light)' : 'var(--text)'};text-decoration:${entry.done ? 'line-through' : 'none'};">${escHtml(entry.title)}</div>
+          ${entry.notes ? `<div style="font-size:12px;color:var(--text-muted);line-height:1.4;margin-top:2px;">${escHtml(entry.notes)}</div>` : ''}
+          ${entry.type === 'task' || entry.type === 'reminder' ? `
+            <div class="entry-checkbox-wrap">
+              <input type="checkbox" class="entry-checkbox" ${entry.done ? 'checked' : ''} onchange="toggleDone('${person}','${entry.id}',this.checked)" />
+              <span class="entry-checkbox-label">Mark complete</span>
+            </div>` : ''}
+        </div>
+        <div class="entry-actions">
+          <button class="del-btn" onclick="deleteEntry('${person}','${entry.id}')" title="Remove">&times;</button>
+          <button style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:12px;padding:2px 4px;" onclick="openModal('${person}','${entry.id}')" title="Edit">&#9998;</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function deleteEntry(person, id) {
+    data[person] = data[person].filter(e => e.id !== id);
+    renderEntries(person);
+    save();
+  }
+
+  function toggleDone(person, id, val) {
+    const e = data[person].find(e => e.id === id);
+    if (e) { e.done = val; renderEntries(person); save(); }
+  }
+
+  // ── LOCAL STORAGE ──
+  function save() {
+    try { localStorage.setItem('mep_data', JSON.stringify({ date: dateInput.value, data })); } catch(e) {}
+  }
+
+  function loadSaved() {
+    try {
+      const s = localStorage.getItem('mep_data');
+      if (s) {
+        const parsed = JSON.parse(s);
+        if (parsed.date) { dateInput.value = parsed.date; updateHeaderDate(); }
+        if (parsed.data) {
+          if (parsed.data.billy) data.billy = parsed.data.billy;
+          if (parsed.data.ac) data.ac = parsed.data.ac;
+        }
+        renderEntries('billy');
+        renderEntries('ac');
+      }
+    } catch(e) {}
+  }
+
+  // ── PRINT ──
+  function printPerson(person) {
+    const name = person === 'billy' ? 'Billy' : 'A.C.';
+    const role = person === 'billy' ? 'Sales Enablement — Paraco Gas' : 'Pastry Chef — Di Sweet Spot';
+    const color = person === 'billy' ? '#1B3A6B' : '#7b3fa0';
+    const dateVal = dateInput.value;
+    const displayDate = formatDisplayDate(dateVal);
+    const entries = data[person];
+
+    // Build print HTML
+    let entriesHtml = '';
+    if (!entries.length) {
+      entriesHtml = '<div style="color:#aaa;font-style:italic;font-size:13px;padding:16px 0;">No entries for this day.</div>';
+    } else {
+      entries.forEach(e => {
+        const isUnsched = e.unscheduled || !e.start;
+        const timeDisplay = isUnsched
+          ? `<span class="print-time unsched">Unscheduled</span>`
+          : `<span class="print-time">${fmtRange(e.start, e.end)}</span>`;
+        const checkBox = (e.type === 'task' || e.type === 'reminder')
+          ? `<span class="print-check"></span>` : '';
+        entriesHtml += `
+          <div class="print-entry">
+            <div>${timeDisplay}</div>
+            <div class="print-entry-body">
+              <div class="print-entry-type">${typeLabels[e.type] || e.type}</div>
+              <div class="print-entry-title">${checkBox}${escHtml(e.title)}${e.done ? ' <span style="font-size:11px;color:#aaa;">(done)</span>' : ''}</div>
+              ${e.notes ? `<div class="print-entry-note">${escHtml(e.notes)}</div>` : ''}
+            </div>
+          </div>`;
+      });
+    }
+
+    const printHtml = `
+      <div class="print-page">
+        <div class="print-header">
+          <div>
+            <div class="print-header-name" style="color:${color};">${name}</div>
+            <div class="print-header-sub">${role}</div>
+          </div>
+          <div class="print-header-right">
+            <div class="print-header-mise" style="color:${color};">Mise En Place</div>
+            <div class="print-header-date">${displayDate}</div>
+          </div>
+        </div>
+        ${entriesHtml}
+        <div class="print-footer">
+          <span>Mise En Place &mdash; Daily Planner</span>
+          <span>${displayDate}</span>
+        </div>
+      </div>
+    `;
+
+    // Show only this person's column, inject print content
+    document.querySelectorAll('.person-col').forEach(c => c.classList.remove('printing'));
+    document.getElementById('col-' + person).classList.add('printing');
+
+    const target = document.getElementById('print-target');
+    target.innerHTML = printHtml;
+    target.style.display = 'block';
+
+    // Temporarily hide screen content, show print target
+    document.querySelector('.columns').style.display = 'none';
+
+    window.print();
+
+    // Restore
+    document.querySelector('.columns').style.display = '';
+    target.style.display = 'none';
+    target.innerHTML = '';
+  }
+
+  // ── INIT ──
+  loadSaved();
+  dateInput.addEventListener('change', save);
+</script>
+
+</body>
+</html>
