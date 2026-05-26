@@ -238,9 +238,8 @@
         </div>
         <button class="add-entry-btn billy" id="add-billy">+ Add entry</button>
       </div>
-      <div class="entries-list" id="entries-billy">
-        <div class="empty-state" id="empty-billy">No entries yet. Click "Add entry" to get started.</div>
-      </div>
+      <div class="empty-state" id="empty-billy">No entries yet. Click "Add entry" to get started.</div>
+      <div class="entries-list" id="entries-billy"></div>
     </div>
     <div class="person-col" id="col-ac">
       <div class="col-header ac-col">
@@ -250,9 +249,8 @@
         </div>
         <button class="add-entry-btn ac" id="add-ac">+ Add entry</button>
       </div>
-      <div class="entries-list" id="entries-ac">
-        <div class="empty-state" id="empty-ac">No entries yet. Click "Add entry" to get started.</div>
-      </div>
+      <div class="empty-state" id="empty-ac">No entries yet. Click "Add entry" to get started.</div>
+      <div class="entries-list" id="entries-ac"></div>
     </div>
   </div>
 
@@ -488,15 +486,15 @@
     var empty = document.getElementById('empty-' + person);
     var entries = currentData[person];
 
+    // Always clear only the cards container; never touch the empty element's DOM position
+    list.innerHTML = '';
+
     if (!entries.length) {
-      list.innerHTML = '';
-      list.appendChild(empty);
       empty.style.display = 'block';
       empty.textContent = isReadOnly ? 'No entries for this day.' : 'No entries yet. Click "Add entry" to get started.';
       return;
     }
     empty.style.display = 'none';
-    list.innerHTML = '';
 
     entries.forEach(function(entry) {
       var isUnsched = entry.unscheduled || !entry.start;
